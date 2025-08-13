@@ -11,7 +11,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import PromptTemplate
 from bs4 import BeautifulSoup
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain.memory import ConversationBufferMemory
 from langchain_core.runnables import RunnableMap
 from langchain_core.messages import HumanMessage
@@ -97,23 +97,24 @@ text_splitter = RecursiveCharacterTextSplitter(
 splits = text_splitter.split_documents(docs)
 # print(len(splits[0].page_content))
 
-persist_directory = "./chroma_db"
+persist_directory = "./faiss_db"
 
-if os.path.exists(persist_directory) and os.listdir(persist_directory):
-    vectorstore = Chroma(
-        embedding_function=OpenAIEmbeddings(),
-        persist_directory=persist_directory
+import os
+
+if os.path.exists(persist_directory):
+    vectorstore = FAISS.load_local(
+        persist_directory,
+        embeddings,
+        allow_dangerous_deserialization=True
     )
 else:
-    vectorstore = Chroma.from_documents(
+    vectorstore = FAISS.from_documents(
         documents=splits,
-        embedding=OpenAIEmbeddings(),
-        persist_directory=persist_directory
+        embedding=embeddings
     )
-    vectorstore.persist()
+    vectorstore.save_local(persist_directory)
 
 retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 6})
-
 
 template = """
 You are NetConsult's Virtual Assistant. Your top priority is to guide the user toward booking an appointment with our team.
