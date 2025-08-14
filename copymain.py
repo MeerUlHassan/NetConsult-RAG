@@ -140,6 +140,8 @@ Service Options:
 - 📈 SEO Services
 - 📱 Social Media Management
 - 📋 Both SEO + SMM
+- 🛠️ Web Development
+- 📊 Google Ads
 - ❓ Speak to a Consultant
 
 Quick Actions:
